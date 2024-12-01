@@ -293,9 +293,6 @@ summary_data = {
     "Weeks": [average_weeks, median_weeks]
 }
 summary_df = pd.DataFrame(summary_data).set_index("Metric")
-
-
-# Display the summary DataFrame
 st.caption(f"Filtered by Decision Years: {year_range[0]} - {year_range[1]}")
 st.write("This DataFrame summarizes the review duration in calendar days and weeks:")
 st.dataframe(summary_df)
