@@ -141,13 +141,16 @@ else:
     st.write("No data to display.")
 
 ####### Average crimes
-
-st.sidebar.title("Crime Analysis")
-selected_court = st.sidebar.selectbox("Select Appeal Court", ['All'] + list(df['Court'].unique()), key="select_court")
+df_crime_analysis = df.copy()
+selected_court = st.sidebar.selectbox(
+    "Select Appeal Court",
+    ['All'] + list(df['Court'].unique()),
+    key="select_court_crime"
+)
 if selected_court != 'All':
-    df = df[df['Court'] == selected_court.lower()]
+    df_crime_analysis = df_crime_analysis[df_crime_analysis['Court'] == selected_court.lower()]
 
-df2 = df.copy()
+df2 = df_crime_analysis.copy()
 
 df2['Decision_date'] = pd.to_datetime(df2['Decision_date'], errors='coerce')
 df2['Year'] = df2['Decision_date'].dt.year
@@ -183,7 +186,7 @@ else:
     )
     st.altair_chart(chart, use_container_width=True)
 
-df3 = df.copy()
+df3 = df_crime_analysis.copy()
 
 st.subheader("Most common crimes in recidivism cases")
 st.write("""
