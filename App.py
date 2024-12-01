@@ -5,30 +5,22 @@ import plotly.express as px
 from io import BytesIO
 import requests
 
-# Streamlit page configuration
 st.set_page_config(
     page_title="The Dark Knights",
     page_icon="🏇"
 )
 
-# Replace with your actual file details
 username = 'ananya001'
 token = '89da193bf6348e04b4709ff2b891fcab85e00fdd'
 host = 'eu.pythonanywhere.com'
 file_path = 'home/ananya001/Legal_data/Total1.xlsx'
-
-# Fetch the Excel file
 response = requests.get(
     f'https://{host}/api/v0/user/{username}/files/path/{file_path}',
     headers={'Authorization': f'Token {token}'}
 )
 excel_data = BytesIO(response.content)
 df = pd.read_excel(excel_data)
-
-# Preprocess the data
 df.loc[df["Case Number"] == "n° 22-81.750", "Court"] = "Aix-en-Provence"
-
-# Convert court names to lowercase
 df['Court'] = df['Court'].str.lower()
 
 st.write(f'''
@@ -45,7 +37,7 @@ Contact: [Ananya Goyal](mailto:ananya.goyal@sciencespo.fr) , [Pauline Piketty](m
 ***
 ''')
 
-#####
+##### Dataframe
 
 df0 = df.copy()
 df0 = df0[[
@@ -57,7 +49,7 @@ df0 = df0[[
     "Decision_date": "Decision date",
     "Appeal_Date": "Appeal date",
     "Crime_cleaned": "Crime",
-    "Contains_aggravé": "Aggrave",
+    "Contains_aggravé": "Aggravé",
     "Review_Duration": "Review duration",
     "Gender": "Gender",
     "Decision": "Decision"
@@ -68,22 +60,19 @@ df0["Crime"] = df0["Crime"].fillna("")
 st.title("The Victory Table")
 st.dataframe(df0)
 
-####
+#### Cour d'appel 
 
 df1 = df.copy()
 
-# Generate court counts
 court_counts = df1['Court'].value_counts().reset_index()
 court_counts.columns = ['Court', 'Count']
 
-# Sidebar for selecting a filter
 st.sidebar.title("Filter Courts")
 filter_option = st.sidebar.radio(
     "Choose a filter:",
     options=["All Courts", "Top 5 Courts", "Bottom 5 Courts"]
 )
 
-# Apply the selected filter
 if filter_option == "Top 5 Courts":
     filtered_counts = court_counts.nlargest(5, "Count")
 elif filter_option == "Bottom 5 Courts":
@@ -91,10 +80,8 @@ elif filter_option == "Bottom 5 Courts":
 else:
     filtered_counts = court_counts
 
-# Streamlit title
 st.title("Big Reveal")
 
-# Bar Chart using Altair
 st.subheader("Distribution of Recidivism Cases Across Appeal Court")
 st.write("""
 Explore the distribution of recidivism cases across appellate courts. Use the sidebar to filter and view 
@@ -123,23 +110,17 @@ is proportional to the count of cases.
 if not filtered_counts.empty:
     treemap = px.treemap(
         filtered_counts,
-        path=['Court'],  # Hierarchical structure for treemap
+        path=['Court'],  
         values='Count'
     )
     st.plotly_chart(treemap, use_container_width=True)
 else:
     st.write("No data to display for the selected filter.")
-
+## Population
 df_population = pd.read_excel("Population.xlsx")
-
-# Preprocess the data
-# Drop rows where 'Population' is NaN
 df_population = df_population.dropna(subset=["Population"])
 
-# Ensure 'Population' is numeric
 df_population["Population"] = pd.to_numeric(df_population["Population"], errors="coerce")
-
-# Group and aggregate if needed (optional, if duplicates exist)
 df_population = df_population.groupby("City", as_index=False)["Population"].sum()
 
 st.subheader("Treemap of Population Across Cities")
@@ -149,9 +130,6 @@ its size proportional to the population of that city. We use this to analyze pop
 to the frequency of recidivism cases in the appellate courts.
 """)
 
-
-
-# Treemap using Plotly
 if not df_population.empty:
     treemap = px.treemap(
         df_population,
@@ -162,19 +140,15 @@ if not df_population.empty:
 else:
     st.write("No data to display.")
 
-#######
-# Additional Analysis: Average Crimes Per Case
+####### Average crimes
+
 st.sidebar.title("Crime Analysis")
 selected_court = st.sidebar.selectbox("Select Appeal Court", ['All'] + list(df['Court'].unique()), key="select_court")
-
-# Apply court filter to both `df2` and `df3`
 if selected_court != 'All':
     df = df[df['Court'] == selected_court.lower()]
 
-# Create a copy for crime analysis (df2)
 df2 = df.copy()
 
-# Ensure valid data in 'Crime_cleaned' and 'Decision_date'
 df2['Decision_date'] = pd.to_datetime(df2['Decision_date'], errors='coerce')
 df2['Year'] = df2['Decision_date'].dt.year
 df2 = df2.dropna(subset=['Year'])
@@ -187,7 +161,6 @@ else:
     st.write("Error: 'Crime_cleaned' column is missing.")
     df2['Num_crimes'] = 0
 
-# Filter based on selected court for df2
 filtered_df2 = df2[df2['Num_crimes'] > 0]
 avg_crimes_per_year = filtered_df2.groupby('Year')['Num_crimes'].mean().reset_index()
 
@@ -210,7 +183,6 @@ else:
     )
     st.altair_chart(chart, use_container_width=True)
 
-# Analysis for Most Common Crimes (df3)
 df3 = df.copy()
 
 st.subheader("Most common crimes in recidivism cases")
@@ -220,29 +192,22 @@ to view the most or least common crimes and also filter the graph by court.
 """)
 
 if 'Crime_cleaned' in df3.columns and 'Court' in df3.columns:
-    # Generate a list of all crimes
     crime_list = [
         crime.strip() for crimes in df3['Crime_cleaned'].dropna() for crime in crimes.split(', ')
     ]
-
-    # Compute the frequency of each crime
     crime_counts = pd.Series(crime_list).value_counts().reset_index()
     crime_counts.columns = ['Crime', 'Count']
 
-    # Sidebar Filter for Most Common Crimes
     crime_filter_option = st.sidebar.radio(
         "Choose Crime Filter:",
         options=["All Crimes", "Top 5 Crimes", "Bottom 5 Crimes"],
         key="crime_filter"
     )
 
-    # Apply crime filter
     if crime_filter_option == "Top 5 Crimes":
         crime_counts = crime_counts.head(5)
     elif crime_filter_option == "Bottom 5 Crimes":
         crime_counts = crime_counts.tail(5)
-
-    # Display Most Common Crimes
     if not crime_counts.empty:
         crime_bar_chart = alt.Chart(crime_counts).mark_bar().encode(
             x=alt.X('Count:Q', title="Frequency"),
@@ -260,16 +225,12 @@ else:
     st.write("Error: Required columns 'Crime_cleaned' or 'Court' are missing.")
 
 
-#######
+####### Aggrave
 
-# Create df4 with only cases where Contains_aggravé is True
 df4 = df[df['Contains_aggravé'] == True].copy()
 
-# Group by Court and count the cases
 court_aggravé_counts = df4['Court'].value_counts().reset_index()
 court_aggravé_counts.columns = ['Court', 'Count']
-
-# Sidebar for selecting a filter specific to aggravé cases
 st.sidebar.title("Courts involving aggravated cases")
 aggravé_filter_option = st.sidebar.radio(
     "Choose a filter:",
@@ -277,7 +238,6 @@ aggravé_filter_option = st.sidebar.radio(
     key="aggravé_filter"
 )
 
-# Apply the selected filter (this does not affect any other part of the app)
 if aggravé_filter_option == "Top 10 Courts":
     filtered_aggravé_counts = court_aggravé_counts.nlargest(10, "Count")
 elif aggravé_filter_option == "Bottom 10 Courts":
@@ -305,7 +265,8 @@ if not filtered_aggravé_counts.empty:
     st.altair_chart(aggravé_bar_chart, use_container_width=True)
 else:
     st.write("No data to display for the selected filter.")
-######
+    
+###### Review
 
 st.subheader("Review Duration Analysis")
 st.write("""
@@ -317,20 +278,15 @@ decision year range to focus on specific periods.
 df["Decision_date"] = pd.to_datetime(df["Decision_date"], errors="coerce")
 df5 = df.copy()
 
-# Sidebar: Year filter
 st.sidebar.title("Decision Year")
 year_range = st.sidebar.slider("Select Year Range", min_value=2015, max_value=2024, value=(2015, 2024))
 
-# Filter df5 by selected year range
 df5_filtered = df5[(df5["Decision_date"].dt.year >= year_range[0]) & (df5["Decision_date"].dt.year <= year_range[1])]
-
-# Calculate statistics
 average_days = df5_filtered["Review_Duration"].mean()
 median_days = df5_filtered["Review_Duration"].median()
 average_weeks = average_days / 7
 median_weeks = median_days / 7
 
-# Create a summary DataFrame
 summary_data = {
     "Metric": ["Average", "Median"],
     "Calendar Days": [average_days, median_days],
