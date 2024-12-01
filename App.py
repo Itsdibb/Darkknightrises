@@ -245,3 +245,5 @@ st.title("Review Duration Analysis")
 st.subheader(f"Filtered by Decision Years: {year_range[0]} - {year_range[1]}")
 st.write("This DataFrame summarizes the review duration in calendar days and weeks:")
 st.dataframe(summary_df)
+
+
