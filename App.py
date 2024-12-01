@@ -1,332 +1,247 @@
-import requests
 import streamlit as st
-import numpy as np
-from datetime import datetime, date, timedelta
 import pandas as pd
-from io import BytesIO
-from deta import Deta
 import altair as alt
-import re
+import plotly.express as px
+from io import BytesIO
+import requests
 
+# Streamlit page configuration
 st.set_page_config(
-    page_title="FR case tracker",
-    page_icon="🇫🇷"
+    page_title="The Dark Knights",
+    page_icon="🏇"
 )
 
-day = timedelta(days=1)
-
-
+# Replace with your actual file details
 username = 'ananya001'
 token = '89da193bf6348e04b4709ff2b891fcab85e00fdd'
 host = 'eu.pythonanywhere.com'
-file_path = 'home/ananya001/test4/final.csv' 
+file_path = 'home/ananya001/Legal_data/Total1.xlsx'
+
+# Fetch the Excel file
 response = requests.get(
     f'https://{host}/api/v0/user/{username}/files/path/{file_path}',
     headers={'Authorization': f'Token {token}'}
 )
-csv_data = BytesIO(response.content)
-df = pd.read_csv(csv_data)
+excel_data = BytesIO(response.content)
+df = pd.read_excel(excel_data)
 
-df['Last_update'] = pd.to_datetime(df['Last_update'], format='%d/%m/%Y')
-last_update_date = df['Last_update'].max()  
-formatted_date = last_update_date.strftime('%d %B %Y')  
+# Preprocess the data
+df.loc[df["Case Number"] == "n° 22-81.750", "Court"] = "Aix-en-Provence"
 
-st.write(f'''
-# French Merger Case Tracker
-This is an automated overview of the French merger control! Stay informed about case developments by exploring the tables below. Click on the URL for direct access to the authority's webpage.
- 
- 
-Last updated: {formatted_date} (source: [FR](https://www.autoritedelaconcurrence.fr/fr/liste-de-controle-des-concentrations)) | Contact: [Joost Dibbits](mailto:joost.dibbits@linklaters.com) or [Ananya Goyal](mailto:ananya.goyal@linklaters.com)
-***
-''')
-#####
-df['sens_decision_date'] = pd.to_datetime(df['sens_decision_date'], errors='coerce')
-st.sidebar.header('User input features')
-st.sidebar.header('Sector')
+# Convert court names to lowercase
+df['Court'] = df['Court'].str.lower()
 
-st.sidebar.caption("Enter keywords or select sectors from the box below. The tables and the graph on the main page will filter the cases based on the sector.")
-sector_list = pd.concat([df['Sector 1'], df['Sector 2'], df['Sector 3']]).dropna().unique()
-sector_list = sorted(sector_list)
+df1 = df.copy()
 
-mask_dex_cases = df['Title'].str.contains('DEX', case=False, na=False)
-df.loc[mask_dex_cases, 'Phase'] = 'Phase 1'
-df.loc[mask_dex_cases, 'Dispositif'] = 'Referred to P2'
-# Multiselect widget for sectors
-selected_sectors = st.sidebar.multiselect(
-    'Sector',
-    options=sector_list, 
-    default=[],
-    placeholder="Enter keywords"
+# Generate court counts
+court_counts = df1['Court'].value_counts().reset_index()
+court_counts.columns = ['Court', 'Count']
+
+# Sidebar for selecting a filter
+st.sidebar.title("Filter Courts")
+filter_option = st.sidebar.radio(
+    "Choose a filter:",
+    options=["All Courts", "Top 5 Courts", "Bottom 5 Courts"]
 )
 
-# Filter DataFrame based on selected sectors from any of the three columns
-if selected_sectors:
-    mask = df['Sector 1'].isin(selected_sectors) | df['Sector 2'].isin(selected_sectors) | df['Sector 3'].isin(selected_sectors)
-    df = df[mask]
-
-st.sidebar.header('Parties')
-st.sidebar.caption("Enter party names in search box below. The tables on the main page and the graph will show all cases pertaining to the party.")
-nace_categories = df['parties_concerne'].dropna().unique().tolist()
-search_term = st.sidebar.text_input('Search', placeholder='Enter party names') 
-if search_term:
-    search_terms = search_term.split() 
-    search_regex = '|'.join(search_terms)  
-    df = df[df['parties_concerne'].str.contains(search_regex, case=False, na=False)]
-
-df_ongoing = df[df['Ongoing'] == 'Yes']
-if df_ongoing.empty:
-      st.write("There are no ongoing cases")
+# Apply the selected filter
+if filter_option == "Top 5 Courts":
+    filtered_counts = court_counts.nlargest(5, "Count")
+elif filter_option == "Bottom 5 Courts":
+    filtered_counts = court_counts.nsmallest(5, "Count")
 else:
-    grouped_data_combined = df_ongoing.groupby('Phase').size().reset_index(name='Cases')
-    
-    grouped_data_combined['Phase'] = pd.Categorical(grouped_data_combined['Phase'], categories=['Phase 1', 'Phase 2'], ordered=True)
-    
-    max_value = int(grouped_data_combined['Cases'].max())
-    whole_numbers = list(range(max_value + 5))
-    
-    chart_combined = alt.Chart(grouped_data_combined).mark_bar(size=20).encode(
-        y=alt.Y('Phase:O', axis=alt.Axis(title='')),
-        x=alt.X('Cases:Q', axis=alt.Axis(title='', values=whole_numbers, format='.0f')),
-        color=alt.Color('Phase:O', legend=None, scale=alt.Scale(
-            domain=['Phase 1', 'Phase 2'],
-            range=['green', 'red']
-        ))
-    ).properties(width=500, height=200)
-    
-    
-    #st.subheader('Ongoing cases')
-    #st.altair_chart(chart_combined, use_container_width=True)
+    filtered_counts = court_counts
 
-st.caption('Please select one of the following tabs:')
-tabs = st.tabs(["**Phase 1**", "**Phase 1 simplified**","**Phase 2**"])
+# Streamlit title
+st.title("The Dark Knights")
 
-with tabs[0]:
+# Bar Chart using Altair
+st.subheader("Cour d'Appel")
+if not filtered_counts.empty:
+    bar_chart = alt.Chart(filtered_counts).mark_bar().encode(
+        x=alt.X('Count:Q', title="Count"),
+        y=alt.Y('Court:N', sort='-x', title="Court"),
+        color=alt.Color('Court:N', legend=None)
+    ).properties(
+        title=f"Frequency of Courts ({filter_option})",
+        width=700,
+        height=400
+    )
+    st.altair_chart(bar_chart, use_container_width=True)
+else:
+    st.write("No data to display for the selected filter.")
 
-    st.subheader('Phase 1')
-    st.subheader('Ongoing cases')
+if not filtered_counts.empty:
+    treemap = px.treemap(
+        filtered_counts,
+        path=['Court'],  # Hierarchical structure for treemap
+        values='Count',
+        title=f"Court Frequencies Treemap ({filter_option})"
+    )
+    st.plotly_chart(treemap, use_container_width=True)
+else:
+    st.write("No data to display for the selected filter.")
 
-    df2 = df[(df['Phase'] == 'Phase 1') & (df['Ongoing'] == 'Yes')]
-    if df2.empty:
-      st.write("There are no ongoing non-simplified P1 cases")
-    else:
-      df2 = df2.rename(columns={'parties_concerne': 'Parties', 'Notification_date': 'Notification', 'Page URL': '', 'days': 'Days', 'Renvoi': 'Referral'})
-      df2['Notification'] = pd.to_datetime(df2['Notification'])
-      df2 = df2.sort_values(by='Notification', ascending=False)
-      df2['Notification'] = df2['Notification'].dt.strftime('%d/%m/%Y')
-      df2.set_index('', inplace=True) 
-      df2 = df2[['Parties','Notification','Days', 'Referral']] 
-      st.data_editor(
-      pd.DataFrame(df2),
-        column_config={
-          "Parties": st.column_config.Column(width="medium"),
-          "Days": st.column_config.Column(help="Calendar days"),
-          "": st.column_config.LinkColumn(
-            display_text= 'URL',
-            validate= 'URL'
-          )  
-        }
-      )
-    
-    st.caption('The ongoing cases also include simplified cases')
-####
-    st.subheader('Latest published decisions')
+#######
+# Additional Analysis: Average Crimes Per Case
+st.sidebar.title("Crime Analysis")
+selected_court = st.sidebar.selectbox("Select Court", ['All'] + list(df['Court'].unique()), key="select_court")
 
-    df2 = df[(df['Phase'] == 'Phase 1') & (df['simplified'] != 'yes')]
-    df2 = df2.dropna(subset=['Decision_Link'])
-    if df2.empty:
-        st.write("There are no non-simplified P1 published decisions")
-    else:
-        df2 = df2.rename(columns={'Title': 'Case', 'decision_date': 'Publication', 'Link': '', 'parties_concerne': 'Parties', 'Decision_Link': 'Text', 'Dispositif': 'Decision'})
-        df2['Publication'] = pd.to_datetime(df2['Publication'])
-        df2 = df2.dropna(subset=['Text'])
-        df2 = df2.sort_values(by='Publication', ascending=False)
-        df2['Publication'] = df2['Publication'].dt.strftime('%d/%m/%Y')
+# Apply court filter to both `df2` and `df3`
+if selected_court != 'All':
+    df = df[df['Court'] == selected_court.lower()]
 
-        df2 = df2.head(7)
-        df2.set_index('', inplace=True) 
-        df2 = df2[['Case','Parties','Publication', 'Decision', 'Text']] 
+# Create a copy for crime analysis (df2)
+df2 = df.copy()
 
-        st.data_editor(
-            pd.DataFrame(df2),
-            column_config={
-                "Parties": st.column_config.Column(width="medium"),
-                "": st.column_config.LinkColumn(
-                    display_text= 'URL',
-                    validate= 'URL'
-                ),
-                "Text": st.column_config.LinkColumn(
-                    display_text= 'URL',
-                    validate= 'URL'
-                )  
-            }
+# Ensure valid data in 'Crime_cleaned' and 'Decision_date'
+df2['Decision_date'] = pd.to_datetime(df2['Decision_date'], errors='coerce')
+df2['Year'] = df2['Decision_date'].dt.year
+df2 = df2.dropna(subset=['Year'])
+
+if 'Crime_cleaned' in df2.columns:
+    df2['Num_crimes'] = df2['Crime_cleaned'].apply(
+        lambda x: len(x.split(', ')) if isinstance(x, str) else 0
+    )
+else:
+    st.write("Error: 'Crime_cleaned' column is missing.")
+    df2['Num_crimes'] = 0
+
+# Filter based on selected court for df2
+filtered_df2 = df2[df2['Num_crimes'] > 0]
+avg_crimes_per_year = filtered_df2.groupby('Year')['Num_crimes'].mean().reset_index()
+
+# Display Average Crimes Per Case
+st.subheader("Average Number of Crimes Per Case Per Year")
+if avg_crimes_per_year.empty:
+    st.write("No data available for the selected court or year.")
+else:
+    chart = alt.Chart(avg_crimes_per_year).mark_bar().encode(
+        x=alt.X('Year:O', title='Year'),
+        y=alt.Y('Num_crimes:Q', title='Average Crimes Per Case'),
+        tooltip=['Year', 'Num_crimes']
+    ).properties(
+        title='Average Number of Crimes Per Case Per Year',
+        width=700,
+        height=400
+    )
+    st.altair_chart(chart, use_container_width=True)
+
+# Analysis for Most Common Crimes (df3)
+df3 = df.copy()
+
+if 'Crime_cleaned' in df3.columns and 'Court' in df3.columns:
+    # Generate a list of all crimes
+    crime_list = [
+        crime.strip() for crimes in df3['Crime_cleaned'].dropna() for crime in crimes.split(', ')
+    ]
+
+    # Compute the frequency of each crime
+    crime_counts = pd.Series(crime_list).value_counts().reset_index()
+    crime_counts.columns = ['Crime', 'Count']
+
+    # Sidebar Filter for Most Common Crimes
+    crime_filter_option = st.sidebar.radio(
+        "Choose Crime Filter:",
+        options=["All Crimes", "Top 5 Crimes", "Bottom 5 Crimes"],
+        key="crime_filter"
+    )
+
+    # Apply crime filter
+    if crime_filter_option == "Top 5 Crimes":
+        crime_counts = crime_counts.head(5)
+    elif crime_filter_option == "Bottom 5 Crimes":
+        crime_counts = crime_counts.tail(5)
+
+    # Display Most Common Crimes
+    st.subheader("Most Common Crimes")
+    if not crime_counts.empty:
+        crime_bar_chart = alt.Chart(crime_counts).mark_bar().encode(
+            x=alt.X('Count:Q', title="Frequency"),
+            y=alt.Y('Crime:N', sort='-x', title="Crime"),
+            tooltip=['Crime', 'Count']
+        ).properties(
+            title=f"Most Common Crimes ({crime_filter_option})",
+            width=700,
+            height=400
         )
-
-####
-    st.subheader('Latest decisions')
-
-    df2 = df[(df['Phase'] == 'Phase 1') & (df['simplified'] != 'yes')]
-    df2 = df2.dropna(subset=['Dispositif'])
-    if df2.empty:
-        st.write("There are no non-simplified P1 decisions")
+        st.altair_chart(crime_bar_chart, use_container_width=True)
     else:
-        df2 = df2.rename(columns={'Title': 'Case', 'sens_decision_date': 'Date', 'Link': '', 'parties_concerne': 'Parties', 'Dispositif': 'Decision'})
-        df2['Date'] = pd.to_datetime(df2['Date'])
-        df2 = df2.sort_values(by='Date', ascending=False)
-        df2['Date'] = df2['Date'].dt.strftime('%d/%m/%Y')
+        st.write("No data to display for the selected crime filter.")
+else:
+    st.write("Error: Required columns 'Crime_cleaned' or 'Court' are missing.")
 
-        df2 = df2.head(7)
-        df2.set_index('', inplace=True) 
-        df2 = df2[['Case','Parties','Date', 'Decision']] 
 
-        st.data_editor(
-            pd.DataFrame(df2),
-            column_config={
-                "Parties": st.column_config.Column(width="medium"),
-                "": st.column_config.LinkColumn(
-                    display_text= 'URL',
-                    validate= 'URL'
-                )  
-            }
-        )
-#####
-with tabs[1]:
-    st.subheader('Phase 1 simplified')
+#######
 
-    st.subheader('Latest published decisions')
+# Create df4 with only cases where Contains_aggravé is True
+df4 = df[df['Contains_aggravé'] == True].copy()
 
-    df2 = df[(df['Phase'] == 'Phase 1') & (df['simplified'] != 'no')]
-    df2 = df2.dropna(subset=['Decision_Link'])
-    if df2.empty:
-        st.write("There are no simplified P1 published decisions")
-    else:
-        df2 = df2.rename(columns={'Title': 'Case', 'decision_date': 'Publication', 'Link': '', 'parties_concerne': 'Parties', 'Decision_Link': 'Text',  'Dispositif': 'Decision'})
-        df2['Publication'] = pd.to_datetime(df2['Publication'])
-        df2 = df2.dropna(subset=['Text'])
-        df2 = df2.sort_values(by='Publication', ascending=False)
-        df2['Publication'] = df2['Publication'].dt.strftime('%d/%m/%Y')
+# Group by Court and count the cases
+court_aggravé_counts = df4['Court'].value_counts().reset_index()
+court_aggravé_counts.columns = ['Court', 'Count']
 
-        df2 = df2.head(7)
-        df2.set_index('', inplace=True) 
-        df2 = df2[['Case','Parties','Publication', 'Decision', 'Text']] 
+# Sidebar for selecting a filter specific to aggravé cases
+st.sidebar.title("Filter Courts for Aggravé Cases")
+aggravé_filter_option = st.sidebar.radio(
+    "Choose a filter:",
+    options=["All Courts", "Top 10 Courts", "Bottom 10 Courts"],
+    key="aggravé_filter"
+)
 
-        st.data_editor(
-            pd.DataFrame(df2),
-            column_config={
-                "Parties": st.column_config.Column(width="medium"),
-                "": st.column_config.LinkColumn(
-                    display_text= 'URL',
-                    validate= 'URL'
-                ),
-                "Text": st.column_config.LinkColumn(
-                    display_text= 'URL',
-                    validate= 'URL'
-                )  
-            }
-        )
-####
-    st.subheader('Latest decisions')
+# Apply the selected filter (this does not affect any other part of the app)
+if aggravé_filter_option == "Top 10 Courts":
+    filtered_aggravé_counts = court_aggravé_counts.nlargest(10, "Count")
+elif aggravé_filter_option == "Bottom 10 Courts":
+    filtered_aggravé_counts = court_aggravé_counts.nsmallest(10, "Count")
+else:
+    filtered_aggravé_counts = court_aggravé_counts
 
-    df2 = df[(df['Phase'] == 'Phase 1') & (df['simplified'] != 'no')]
-    df2 = df2.dropna(subset=['Dispositif'])
-    if df2.empty:
-      st.write("There are no simplified P1 decisions")
-    else:
-      df2 = df2.rename(columns={'Title': 'Case', 'sens_decision_date': 'Date', 'Link': '', 'parties_concerne': 'Parties', 'Dispositif': 'Decision'})
-      df2['Date'] = pd.to_datetime(df2['Date'])
-      df2 = df2.sort_values(by='Date', ascending=False)
-      df2['Date'] = df2['Date'].dt.strftime('%d/%m/%Y')
-      df2 = df2.head(7)
-      df2.set_index('', inplace=True) 
-      df2 = df2[['Case','Parties','Date', 'Decision']] 
+# Display the title for the analysis
+st.title("Aggravé Case Frequency Analysis")
 
-      st.data_editor(
-      pd.DataFrame(df2),
-        column_config={
-          "Parties": st.column_config.Column(width="medium"),
-          "": st.column_config.LinkColumn(
-            display_text= 'URL',
-            validate= 'URL'
-          )  
-        }
-      )
-#####
+# Bar Chart using Altair with category20 colors
+st.subheader("Bar Chart of Aggravé Cases by Court")
+if not filtered_aggravé_counts.empty:
+    aggravé_bar_chart = alt.Chart(filtered_aggravé_counts).mark_bar().encode(
+        x=alt.X('Count:Q', title="Count of Aggravé Cases"),
+        y=alt.Y('Court:N', sort='-x', title="Court"),
+        color=alt.Color('Court:N', scale=alt.Scale(scheme='category20'), legend=None)
+    ).properties(
+        title=f"Aggravé Cases by Court ({aggravé_filter_option})",
+        width=700,
+        height=400
+    )
+    st.altair_chart(aggravé_bar_chart, use_container_width=True)
+else:
+    st.write("No data to display for the selected filter.")
+######
+df["Decision_date"] = pd.to_datetime(df["Decision_date"], errors="coerce")
+df5 = df.copy()
 
-with tabs[2]:
-    st.subheader('Phase 2')
-    st.subheader('Ongoing cases')
+# Sidebar: Year filter
+st.sidebar.title("Filter by Decision Year")
+year_range = st.sidebar.slider("Select Year Range", min_value=2015, max_value=2024, value=(2015, 2024))
 
-    df2 = df[(df['Phase'] == 'Phase 2') & (df['Ongoing'] == 'Yes')]
-    if df2.empty:
-      st.write("There are no ongoing P2 cases")
-    else:
-      df2 = df2.rename(columns={'parties_concerne': 'Parties', 'Notification_date': 'Notification', 'Page URL': '', 'days': 'Days', 'Renvoi': 'Referral'})
-      df2['Notification'] = pd.to_datetime(df2['Notification'])
-      df2 = df2.sort_values(by='Notification', ascending=False)
-      df2['Notification'] = df2['Notification'].dt.strftime('%d/%m/%Y')
-      df2.set_index('', inplace=True) 
-      df2 = df2[['Parties','Notification','Days', 'Renvoi']] 
-      st.data_editor(
-      pd.DataFrame(df2),
-        column_config={
-          "Parties": st.column_config.Column(width="medium"),
-          "": st.column_config.LinkColumn(
-            display_text= 'URL',
-            validate= 'URL'
-          )  
-        }
-      )
-    ######
-    st.subheader('Latest published decisions')
+# Filter df5 by selected year range
+df5_filtered = df5[(df5["Decision_date"].dt.year >= year_range[0]) & (df5["Decision_date"].dt.year <= year_range[1])]
 
-    df2 = df[(df['Phase'] == 'Phase 2')]
-    if df2.empty:
-        st.write("There are no P2 published decisions")
-    else:
-        df2 = df2.rename(columns={'Title': 'Case', 'decision_date': 'Publication', 'Link': '', 'parties_concerne': 'Parties', 'Decision_Link': 'Text',  'Dispositif': 'Decision'})
-        df2['Publication'] = pd.to_datetime(df2['Publication'])
-        df2 = df2.dropna(subset=['Text'])
-        df2 = df2.sort_values(by='Publication', ascending=False)
-        df2['Publication'] = df2['Publication'].dt.strftime('%d/%m/%Y')
+# Calculate statistics
+average_days = df5_filtered["Review_Duration"].mean()
+median_days = df5_filtered["Review_Duration"].median()
+average_weeks = average_days / 7
+median_weeks = median_days / 7
 
-        df2 = df2.head(7)
-        df2.set_index('', inplace=True) 
-        df2 = df2[['Case','Parties','Publication', 'Decision', 'Text']] 
+# Create a summary DataFrame
+summary_data = {
+    "Metric": ["Average", "Median"],
+    "Calendar Days": [average_days, median_days],
+    "Weeks": [average_weeks, median_weeks]
+}
+summary_df = pd.DataFrame(summary_data)
 
-        st.data_editor(
-            pd.DataFrame(df2),
-            column_config={
-                "Parties": st.column_config.Column(width="medium"),
-                "": st.column_config.LinkColumn(
-                    display_text= 'URL',
-                    validate= 'URL'
-                ),
-                "Text": st.column_config.LinkColumn(
-                    display_text= 'URL',
-                    validate= 'URL'
-                )  
-            }
-        )
-    ######
-    st.subheader('Latest decisions')
-
-    df2 = df[(df['Phase'] == 'Phase 2')]
-    if df2.empty:
-      st.write("There are no P2 decisions")
-    else:
-      df2 = df2.rename(columns={'Title': 'Case', 'sens_decision_date': 'Date', 'Link': '', 'parties_concerne': 'Parties','Dispositif': 'Decision'})
-      df2['Date'] = pd.to_datetime(df2['Date'])
-      df2 = df2.sort_values(by='Date', ascending=False)
-      df2['Date'] = df2['Date'].dt.strftime('%d/%m/%Y')
-      df2 = df2.head(7)
-      df2.set_index('', inplace=True) 
-      df2 = df2[['Case','Parties','Date', 'Decision']] 
-      st.data_editor(
-      pd.DataFrame(df2),
-        column_config={
-          "Parties": st.column_config.Column(width="medium"),
-          "": st.column_config.LinkColumn(
-            display_text= 'URL',
-            validate= 'URL'
-          )  
-        }
-      )
+# Display the summary DataFrame
+st.title("Review Duration Analysis")
+st.subheader(f"Filtered by Decision Years: {year_range[0]} - {year_range[1]}")
+st.write("This DataFrame summarizes the review duration in calendar days and weeks:")
+st.dataframe(summary_df)
