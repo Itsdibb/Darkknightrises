@@ -1,6 +1,6 @@
 numpy==1.26.0
 openpyxl==3.0.10
-pandas==1.4.4
+pandas==2.1.4
 streamlit-analytics==0.4.1
 altair==5.1.2
 matplotlib==3.8.0
