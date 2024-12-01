@@ -83,7 +83,7 @@ else:
     st.write("No data to display for the selected filter.")
 
 
-df_population = pd.read_excel("population.xlsx")
+df_population = pd.read_excel("Population.xlsx")
 
 # Preprocess the data
 # Drop rows where 'Population' is NaN
