@@ -82,6 +82,34 @@ if not filtered_counts.empty:
 else:
     st.write("No data to display for the selected filter.")
 
+
+df_population = pd.read_excel("population.xlsx")
+
+# Preprocess the data
+# Drop rows where 'Population' is NaN
+df_population = df_population.dropna(subset=["Population"])
+
+# Ensure 'Population' is numeric
+df_population["Population"] = pd.to_numeric(df_population["Population"], errors="coerce")
+
+# Group and aggregate if needed (optional, if duplicates exist)
+df_population = df_population.groupby("City", as_index=False)["Population"].sum()
+
+# Streamlit title
+st.title("City Population Treemap")
+
+# Treemap using Plotly
+if not df_population.empty:
+    treemap = px.treemap(
+        df_population,
+        path=['City'],  # Hierarchical structure for treemap
+        values='Population',
+        title="City Population Treemap"
+    )
+    st.plotly_chart(treemap, use_container_width=True)
+else:
+    st.write("No data to display.")
+
 #######
 # Additional Analysis: Average Crimes Per Case
 st.sidebar.title("Crime Analysis")
