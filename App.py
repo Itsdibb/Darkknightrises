@@ -30,6 +30,32 @@ df.loc[df["Case Number"] == "n° 22-81.750", "Court"] = "Aix-en-Provence"
 
 # Convert court names to lowercase
 df['Court'] = df['Court'].str.lower()
+#####
+df0 = df[[
+    "Case Number", "Court", "Decision_date", "Appeal_Date", "Crime_cleaned", 
+    "Contains_aggravé", "Review_Duration", "Year", "Gender", "Decision"
+]]
+
+df0 = df[[
+    "Case Number", "Court", "Decision_date", "Appeal_Date", "Crime_cleaned", 
+    "Contains_aggravé", "Review_Duration", "Year", "Gender", "Decision"
+]].rename(columns={
+    "Case number": "case_number",
+    "Appeal court": "court",
+    "Decision date": "decision_date",
+    "Appeal date": "appeal_date",
+    "Crime": "crime_cleaned",
+    "Aggravé": "contains_aggrave",
+    "Review duration": "review_duration",
+    "Year": "year",
+    "Gender": "gender",
+    "Decision": "decision"
+})
+
+st.dataframe(df0)
+
+
+####
 
 df1 = df.copy()
 
