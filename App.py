@@ -6,7 +6,7 @@ from io import BytesIO
 import requests
 
 st.set_page_config(
-    page_title="The Dark Knightss",
+    page_title="The Dark Knights",
     page_icon="🏇"
 )
 
@@ -82,7 +82,7 @@ else:
 
 st.title("Big Reveal")
 
-st.subheader("Distribution of Recidivism Cases Across Appeal Court")
+st.subheader("Distribution of Recidivism Cases Across Appeal Courts")
 st.write("""
 Explore the distribution of recidivism cases across appellate courts. Use the sidebar to filter and view 
 the top or bottom courts based on case frequency.
