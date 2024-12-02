@@ -32,7 +32,7 @@ We sought to analyse the recidivism cases brought to the Cour de cassation. Wher
 
 We compared our data with the population of each cour d’appel. Are they correlated? The more people, the more cases?
 
-Contact: [Ananya Goyal](mailto:ananya.goyal@sciencespo.fr) , [Pauline Piketty](mailto:pauline.piketty@sciencespo.fr) or [Laila Abdalaziz](mailto:laila.abdalaziz@sciencespo.fr)
+(source : [FR](https://www.courdecassation.fr/recherche-judilibre?search_api_fulltext=En+r%C3%A9cidive&op=Rechercher&date_du=2014-01-01&date_au=&judilibre_juridiction=cc&judilibre_chambre%5B%5D=cr&page=42&previousdecisionpage=42&previousdecisionindex=0&nextdecisionpage=42&nextdecisionindex=2)) Contact: [Ananya Goyal](mailto:ananya.goyal@sciencespo.fr) , [Pauline Piketty](mailto:pauline.piketty@sciencespo.fr) or [Laila Abdalaziz](mailto:laila.abdalaziz@sciencespo.fr)
 
 ***
 ''')
