@@ -6,7 +6,7 @@ from io import BytesIO
 import requests
 
 st.set_page_config(
-    page_title="The Dark Knights",
+    page_title="The Dark Knightss",
     page_icon="🏇"
 )
 
