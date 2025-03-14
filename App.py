@@ -40,7 +40,8 @@ options = {
 page = st_navbar(
     pages,
     urls=urls,
-    styles=styles
+    styles=styles,
+    options=options,
 )
 
 st.write(page)
