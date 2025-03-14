@@ -9,6 +9,37 @@ st.set_page_config(
     page_title="The Dark Knights",
     page_icon="🏇"
 )
+pages = ["Merger Conrol", "SFR", "DMA"]
+urls = {"Merger Conrol": "https://mergersafari.streamlit.app/", "SFR": "https://subsidysafari.streamlit.app/", "DMA": "https://gatekeepersafari.streamlit.app/" }
+styles = {
+    "nav": {
+        "background-color": "royalblue",
+        "justify-content": "left",
+    },
+    "img": {
+        "padding-right": "14px",
+    },
+    "span": {
+        "color": "white",
+        "padding": "14px",
+    },
+    "active": {
+        "background-color": "white",
+        "color": "var(--text-color)",
+        "font-weight": "normal",
+        "padding": "14px",
+    }
+}
+options = {
+    "show_menu": False,
+    "show_sidebar": False,
+}
+
+page = st_navbar(
+    pages,
+    urls=urls,
+    styles=styles
+)
 
 username = 'ananya001'
 token = '89da193bf6348e04b4709ff2b891fcab85e00fdd'
