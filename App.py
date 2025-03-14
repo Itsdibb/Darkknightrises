@@ -43,6 +43,8 @@ page = st_navbar(
     styles=styles
 )
 
+st.write(page)
+
 username = 'ananya001'
 token = '89da193bf6348e04b4709ff2b891fcab85e00fdd'
 host = 'eu.pythonanywhere.com'
@@ -332,4 +334,3 @@ summary_df = pd.DataFrame(summary_data).set_index("Metric")
 st.caption(f"Filtered by Decision Years: {year_range[0]} - {year_range[1]}")
 st.write("This DataFrame summarizes the review duration in calendar days and weeks:")
 st.dataframe(summary_df)
-st.write(page)
