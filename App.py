@@ -15,7 +15,7 @@ if st.button(
     st.login("auth0")
 
 st.json(st.experimental_user)
-st.markdown(f"Welcome! {st.experimental_user.name}")
+
 
 st.set_page_config(
     page_title="The Dark Knights",
