@@ -72,7 +72,7 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
-name, authentication_status, username = authenticator.login('Login', unrendered)
+name, authentication_status, username = authenticator.login('Login', 'unrendered')
 
 if authentication_status:
     authenticator.logout('Logout', 'main', key='unique_key')
