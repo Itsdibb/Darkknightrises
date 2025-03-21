@@ -10,14 +10,6 @@ from yaml.loader import SafeLoader
 import smtplib
 from email.message import EmailMessage
 
-
-import streamlit as st
-import yaml
-from yaml.loader import SafeLoader
-import smtplib
-from email.message import EmailMessage
-import streamlit_authenticator as stauth
-
 def send_email(subject, body, to_email, config):
     msg = EmailMessage()
     msg.set_content(body)
