@@ -17,7 +17,7 @@ if st.button(
     use_container_width=True,
 ):
     # st.login("google")
-    st.login("auth0")
+    st.login(args=["auth0"])
 
 st.json(st.experimental_user)
 
