@@ -14,12 +14,10 @@ st.set_page_config(
 )
 
 if not st.experimental_user.is_logged_in:
-    if st.button("Log in with Google"):
-        st.login()
+    st.button("Log in with Auth0", on_click=lambda: st.login(client_id="ZFvqLvocgZgdx1r2hAMB0O3enzNoAVyM", domain="dev-hbp7wroop2d5uim5.eu.auth0.com"))
     st.stop()
 
-if st.button("Log out"):
-    st.logout()
+st.button("Log out", on_click=st.logout)
 st.markdown(f"Welcome! {st.experimental_user.name}")
 
 
