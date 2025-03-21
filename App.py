@@ -13,10 +13,6 @@ if st.button(
 ):
     # st.login("google")
     st.login("auth0")
-st.title ("Authentication")
-if not st.experimental_user.is_logged_in:
-    if st.button("Log in"):
-        st.login("auth0")
 
 st.json(st.experimental_user)
 st.markdown(f"Welcome! {st.experimental_user.name}")
