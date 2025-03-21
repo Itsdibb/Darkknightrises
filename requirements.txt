@@ -5,7 +5,7 @@ altair
 matplotlib
 altair_saver 
 plotly     
-streamlit
+streamlit == 1.43.0
 flask
 Authlib
 
