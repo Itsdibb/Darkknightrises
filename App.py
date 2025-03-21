@@ -61,9 +61,7 @@ page = st_navbar(
 if page:
     st.markdown(f"[Open {page} in a new tab]({urls[page]})")
     st.write(f"You have selected {page}.")
-)
 
-st.write(page)
 
 username = 'ananya001'
 token = '89da193bf6348e04b4709ff2b891fcab85e00fdd'
