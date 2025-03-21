@@ -4,35 +4,6 @@ import altair as alt
 import plotly.express as px
 from io import BytesIO
 import requests
-import streamlit_authenticator as stauth
-import yaml
-from yaml.loader import SafeLoader
-import smtplib
-from email.message import EmailMessage
-
-import yaml
-from yaml.loader import SafeLoader
-with open('config.yaml') as file:
-    config = yaml.load(file, Loader=SafeLoader)
-
-
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days']
-)
-
-name, authentication_status, username = authenticator.login('Login', 'main')
-
-if authentication_status:
-    authenticator.logout('Logout', 'main')
-    st.write(f'Welcome *{name}*')
-    st.title('Some content')
-elif authentication_status == False:
-    st.error('Username/password is incorrect')
-elif authentication_status == None:
-    st.warning('Please enter your username and password')
 
 st.set_page_config(
     page_title="The Dark Knights",
