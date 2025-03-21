@@ -5,18 +5,12 @@ import plotly.express as px
 from io import BytesIO
 import requests
 
-user_info = st.experimental_user_info()
-is_logged_in = user_info and user_info.get("is_logged_in", False)
+st.title ("Authentication")
+if not st.experimental_user.is_logged_in:
+    if st.button("Log in"):
+        st.login("auth0")
 
-if not is_logged_in:
-    # Button to initiate login via Auth0
-    st.button("Log in with Auth0", on_click=st.login, args=["auth0"])
-    st.stop()
-
-# Button to handle logout
-st.button("Log out", on_click=st.logout)
-
-# Display the user's name once logged in
+st.json(st.experimental_user)
 st.markdown(f"Welcome! {st.experimental_user.name}")
 
 st.set_page_config(
