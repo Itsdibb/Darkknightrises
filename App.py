@@ -22,12 +22,6 @@ if st.button("Log out"):
     st.logout()
 st.markdown(f"Welcome! {st.experimental_user.name}")
 
-if not st.experimental_user.is_logged_in:
-    st.button("Log in with Google", on_click=st.login)
-    st.stop()
-
-st.button("Log out", on_click=st.logout)
-st.markdown(f"Welcome! {st.experimental_user.name}")
 
 username = 'ananya001'
 token = '89da193bf6348e04b4709ff2b891fcab85e00fdd'
