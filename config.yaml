@@ -15,3 +15,5 @@ cookie:
 preauthorized:
   emails:
   - melsby@gmail.com
+
+hashed_passwords = stauth.Hasher(['abc', 'def']).generate()
