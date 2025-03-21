@@ -73,8 +73,7 @@ authenticator = stauth.Authenticate(
     config.get('credentials', {}),
     config.get('cookie', {}).get('name', ''),
     config.get('cookie', {}).get('key', ''),
-    config.get('cookie', {}).get('expiry_days', 0),
-    config.get('preauthorized', {})
+    config.get('cookie', {}).get('expiry_days', 0))
 )
 
 name, authentication_status, username = authenticator.login('Login', 'main')
