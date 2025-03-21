@@ -13,16 +13,21 @@ st.set_page_config(
     page_icon="🏇"
 )
 
+if not st.experimental_user.is_logged_in:
+    if st.button("Log in with Google"):
+        st.login()
+    st.stop()
 
-[auth]
-redirect_uri = "https://darkknightrises.streamlit.app//login"
-cookie_secret = "xxxfgh567ftgrjabjdsa899bjsaghd"
-client_id = "ZFvqLvocgZgdx1r2hAMB0O3enzNoAVyM"
-client_secret = "8BjcoXT7wuzM58WjMFyX-bYjM98HZ5oQ3ltk0LhCEkd8dzYb3a_bDKEsZcss4cDy"
-server_metadata_url = (
-    "https://dev-hbp7wroop2d5uim5.eu.auth0.com/.well-known/openid-configuration"
-)
+if st.button("Log out"):
+    st.logout()
+st.markdown(f"Welcome! {st.experimental_user.name}")
 
+if not st.experimental_user.is_logged_in:
+    st.button("Log in with Google", on_click=st.login)
+    st.stop()
+
+st.button("Log out", on_click=st.logout)
+st.markdown(f"Welcome! {st.experimental_user.name}")
 
 username = 'ananya001'
 token = '89da193bf6348e04b4709ff2b891fcab85e00fdd'
