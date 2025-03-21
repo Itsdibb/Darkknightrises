@@ -109,7 +109,7 @@ df.loc[df["Case Number"] == "n° 22-81.750", "Court"] = "Aix-en-Provence"
 df['Court'] = df['Court'].str.lower()
 
 st.write(f'''
-# The Dark Knights welcome you!
+# The Dark Knights welcome you
 
 This page will help you visualise and understand our final project. 
 
