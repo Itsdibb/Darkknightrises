@@ -5,6 +5,7 @@ import plotly.express as px
 from io import BytesIO
 import requests
 
+
 if not st.experimental_user.is_logged_in:
     # Button to initiate login via Auth0
     st.button("Log in with Auth0", on_click=st.login, args=["auth0"])
