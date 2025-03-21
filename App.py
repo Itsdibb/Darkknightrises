@@ -4,8 +4,6 @@ import altair as alt
 import plotly.express as px
 from io import BytesIO
 import requests
-from flask import Flask, request, redirect
-import requests
 
 
 st.set_page_config(
