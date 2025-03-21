@@ -5,6 +5,11 @@ import plotly.express as px
 from io import BytesIO
 import requests
 
+st.set_page_config(
+    page_title="The Dark Knights",
+    page_icon="🏇"
+)
+
 if st.button(
     "✨ Sign up to the DataFan Store",
     type="primary",
@@ -16,11 +21,6 @@ if st.button(
 
 st.json(st.experimental_user)
 
-
-st.set_page_config(
-    page_title="The Dark Knights",
-    page_icon="🏇"
-)
 
 
 
