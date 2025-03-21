@@ -4,64 +4,11 @@ import altair as alt
 import plotly.express as px
 from io import BytesIO
 import requests
-import pages as pg
-from streamlit_navigation_bar import st_navbar
 
 st.set_page_config(
     page_title="The Dark Knights",
     page_icon="🏇"
 )
-
-
-pages = ["Merger Control", "SFR", "DMA"]
-
-# URLs for each page
-urls = {
-    "Merger Control": "https://mergersafari.streamlit.app/",
-    "SFR": "https://subsidysafari.streamlit.app/",
-    "DMA": "https://gatekeepersafari.streamlit.app/"
-}
-
-styles = {
-    "nav": {
-        "background-color": "royalblue",
-        "justify-content": "left",
-    },
-    "img": {
-        "padding-right": "14px",
-    },
-    "span": {
-        "color": "white",
-        "padding": "14px",
-    },
-    "active": {
-        "background-color": "white",
-        "color": "var(--text-color)",
-        "font-weight": "normal",
-        "padding": "14px",
-    }
-}
-
-options = {
-    "show_menu": False,
-    "show_sidebar": False,
-}
-
-
-
-# Create the navbar
-page = st_navbar(
-    pages,
-    urls=urls,
-    styles=styles,
-    options=options,
-)
-
-# Display clickable link corresponding to the selected page
-if page:
-    st.markdown(f"[Open {page} in a new tab]({urls[page]})")
-    st.write(f"You have selected {page}.")
-
 
 username = 'ananya001'
 token = '89da193bf6348e04b4709ff2b891fcab85e00fdd'
