@@ -6,6 +6,5 @@ matplotlib
 altair_saver 
 plotly     
 streamlit-analytics
-streamlit-authenticator
-pyyaml
-streamlit
+flask
+Authlib
