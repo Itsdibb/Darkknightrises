@@ -6,7 +6,6 @@ from io import BytesIO
 import requests
 from flask import Flask, request, redirect
 import requests
-import base64
 
 
 st.set_page_config(
