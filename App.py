@@ -4,11 +4,26 @@ import altair as alt
 import plotly.express as px
 from io import BytesIO
 import requests
+from flask import Flask, request, redirect
+import requests
+import base64
+
 
 st.set_page_config(
     page_title="The Dark Knights",
     page_icon="🏇"
 )
+
+
+[auth]
+redirect_uri = "https://darkknightrises.streamlit.app//login"
+cookie_secret = "xxxfgh567ftgrjabjdsa899bjsaghd"
+client_id = "ZFvqLvocgZgdx1r2hAMB0O3enzNoAVyM"
+client_secret = "8BjcoXT7wuzM58WjMFyX-bYjM98HZ5oQ3ltk0LhCEkd8dzYb3a_bDKEsZcss4cDy"
+server_metadata_url = (
+    "https://dev-hbp7wroop2d5uim5.eu.auth0.com/.well-known/openid-configuration"
+)
+
 
 username = 'ananya001'
 token = '89da193bf6348e04b4709ff2b891fcab85e00fdd'
