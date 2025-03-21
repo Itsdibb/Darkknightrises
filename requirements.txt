@@ -7,5 +7,5 @@ altair_saver
 plotly     
 streamlit == 1.43.0
 flask
-Authlib
+authlib
 
