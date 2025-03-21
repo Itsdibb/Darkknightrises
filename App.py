@@ -4,6 +4,7 @@ import altair as alt
 import plotly.express as px
 from io import BytesIO
 import requests
+import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 import smtplib
