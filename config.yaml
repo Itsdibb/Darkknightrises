@@ -1,40 +1,27 @@
-api_key: null
 cookie:
   expiry_days: 30
-  key: some_key
+  key: some_signature_key
   name: some_cookie_name
 credentials:
   usernames:
     jsmith:
       email: jsmith@gmail.com
-      failed_login_attempts: 0
-      first_name: John
-      last_name: Smith
-      logged_in: false
-      password: $2b$12$lhOfbg3eMo9/TIcgFOvlbuYTGJQBdTLU/ek3SiDOooJNrIktqfKr6
-      roles:
-      - admin
-      - editor
-      - viewer
+      name: John Smith
+      password: $2b$12$wCfCTErVJfwfdsOAkegqH.k9OgqPlNjP8t7p/aVpjD2AqKev3iZD.
+    kylem:
+      email: kylemirichmusic@gmail.com
+      name: Kyle Mirich
+      password: $2b$12$GdZItKsud36FJub1d1LyJeJXBc3q3rkSukMyVSO.yaQfI0Gsr2iLG
     rbriggs:
       email: rbriggs@gmail.com
-      failed_login_attempts: 0
-      first_name: Rebecca
-      last_name: Briggs
-      logged_in: false
-      password: $2b$12$SxD/z1xJN6C7G7ygeiCuDOR88ZFAMoky9nCm9JgACEuJiVbVV6/4a
-      roles:
-      - viewer
-oauth2:
-  google:
-    client_id: null
-    client_secret: null
-    redirect_uri: null
-  microsoft:
-    client_id: null
-    client_secret: null
-    redirect_uri: null
-    tenant_id: null
-pre-authorized:
+      name: Rebecca Briggs
+      password: $2b$12$8sfr3zA..TP2kUNnJT6Yje7N0v6yNj9u6gN21f1LNPfOPBO34gO/O
+preauthorized:
   emails:
-  - ananya.goyal@linkalters.com
+  - melsby@gmail.com
+smtp:
+  password: your_app_password
+  port: 587
+  server: smtp.gmail.com
+  use_tls: true
+  username: your_email_address
