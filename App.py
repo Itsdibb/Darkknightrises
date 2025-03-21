@@ -11,7 +11,7 @@ st.set_page_config(
     page_title="The Dark Knights",
     page_icon="🏇"
 )
-st.set_page_config(initial_sidebar_state="collapsed")
+
 
 pages = ["Merger Control", "SFR", "DMA"]
 
