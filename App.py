@@ -5,6 +5,14 @@ import plotly.express as px
 from io import BytesIO
 import requests
 
+if st.button(
+    "✨ Sign up to the DataFan Store",
+    type="primary",
+    key="checkout-button",
+    use_container_width=True,
+):
+    # st.login("google")
+    st.login("auth0")
 st.title ("Authentication")
 if not st.experimental_user.is_logged_in:
     if st.button("Log in"):
