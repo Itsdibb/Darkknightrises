@@ -35,7 +35,7 @@ def send_forgot_username_email(name, username, to_email, config):
 
 def load_config():
     try:
-        with open('Darkknightrises/config.yaml') as file:
+        with open('config.yaml') as file:
             return yaml.load(file, Loader=SafeLoader)
     except FileNotFoundError:
         st.error("Config file not found. Please check the file path and try again.")
@@ -58,7 +58,7 @@ def hash_plaintext_passwords(config):
     return config
 
 def save_config(config):
-    with open('Darkknightrises/config.yaml', 'w') as file:
+    with open('config.yaml', 'w') as file:
         yaml.dump(config, file, default_flow_style=False)
 
 config = load_config()
