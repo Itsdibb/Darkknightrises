@@ -8,4 +8,4 @@ plotly
 streamlit-analytics
 flask
 Authlib
-base64
+
