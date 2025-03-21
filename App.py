@@ -41,7 +41,56 @@ page = st_navbar(
     pages,
     urls=urls,
     styles=styles,
+    options=options,st.set_page_config(initial_sidebar_state="collapsed")
+
+pages = ["Merger Control", "SFR", "DMA"]
+
+# URLs for each page
+urls = {
+    "Merger Control": "https://mergersafari.streamlit.app/",
+    "SFR": "https://subsidysafari.streamlit.app/",
+    "DMA": "https://gatekeepersafari.streamlit.app/"
+}
+
+styles = {
+    "nav": {
+        "background-color": "royalblue",
+        "justify-content": "left",
+    },
+    "img": {
+        "padding-right": "14px",
+    },
+    "span": {
+        "color": "white",
+        "padding": "14px",
+    },
+    "active": {
+        "background-color": "white",
+        "color": "var(--text-color)",
+        "font-weight": "normal",
+        "padding": "14px",
+    }
+}
+
+options = {
+    "show_menu": False,
+    "show_sidebar": False,
+}
+
+
+
+# Create the navbar
+page = st_navbar(
+    pages,
+    urls=urls,
+    styles=styles,
     options=options,
+)
+
+# Display clickable link corresponding to the selected page
+if page:
+    st.markdown(f"[Open {page} in a new tab]({urls[page]})")
+    st.write(f"You have selected {page}.")
 )
 
 st.write(page)
