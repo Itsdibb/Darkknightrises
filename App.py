@@ -34,8 +34,12 @@ def send_forgot_username_email(name, username, to_email, config):
     send_email(subject, body, to_email, config)
 
 def load_config():
-    with open('config.yaml') as file:
-        return yaml.load(file, Loader=SafeLoader)
+    try:
+        with open('Darkknightrises/config.yaml') as file:
+            return yaml.load(file, Loader=SafeLoader)
+    except FileNotFoundError:
+        st.error("Config file not found. Please check the file path and try again.")
+        return {}
 
 def is_bcrypt_hash(s):
     return s.startswith(('$2a$', '$2b$', '$2x$', '$2y$')) and len(s) == 60
@@ -43,7 +47,6 @@ def is_bcrypt_hash(s):
 def hash_plaintext_passwords(config):
     plaintext_passwords = {}
     for user, details in config['credentials']['usernames'].items():
-        # Check if the password is not a bcrypt hash
         if not is_bcrypt_hash(details['password']):
             plaintext_passwords[user] = details['password']
 
@@ -55,31 +58,31 @@ def hash_plaintext_passwords(config):
     return config
 
 def save_config(config):
-    with open('config.yaml', 'w') as file:
+    with open('Darkknightrises/config.yaml', 'w') as file:
         yaml.dump(config, file, default_flow_style=False)
 
 config = load_config()
 
 if 'hashed_done' not in st.session_state:
-    config = hash_plaintext_passwords(config)
-    save_config(config)
+    if config:
+        config = hash_plaintext_passwords(config)
+        save_config(config)
     st.session_state.hashed_done = True
 
 authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days']
+    config.get('credentials', {}),
+    config.get('cookie', {}).get('name', ''),
+    config.get('cookie', {}).get('key', ''),
+    config.get('cookie', {}).get('expiry_days', 0),
+    config.get('preauthorized', {})
 )
 
 name, authentication_status, username = authenticator.login('Login', 'main')
-
 
 if authentication_status:
     authenticator.logout('Logout', 'main', key='unique_key')
     st.write(f'Welcome *{name}*')
     st.title('Some content')  
-
     if authenticator.reset_password(username, 'Reset password'):
         save_config(config)
         st.success('Password modified successfully')
@@ -89,7 +92,8 @@ if authentication_status:
         st.success('Entries updated successfully')
 
 else:
-    if st.session_state.get("authentication_status") is False:
+    auth_status = st.session_state.get("authentication_status")
+    if auth_status is False:
         st.error('Username/password is incorrect')
     else:
         st.warning('Please enter your username and password')
@@ -124,7 +128,6 @@ try:
         st.error('Email not found')
 except Exception as e:
     st.error(str(e))
-
 
 st.set_page_config(
     page_title="The Dark Knights",
