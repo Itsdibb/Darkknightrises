@@ -5,6 +5,25 @@ import plotly.express as px
 from io import BytesIO
 import requests
 
+with open('../config.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
+
+# Pre-hashing all plain text passwords once
+# stauth.Hasher.hash_passwords(config['credentials'])
+
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days']
+)
+
+try:
+    authenticator.login()
+except LoginError as e:
+    st.error(e)
+
+
 st.set_page_config(
     page_title="The Dark Knights",
     page_icon="🏇"
