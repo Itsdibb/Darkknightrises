@@ -1,11 +1,6 @@
 numpy
 openpyxl
 pandas
-altair
-matplotlib
-altair_saver 
-plotly     
 streamlit == 1.43.0
-flask
-authlib
+Authlib
 
